@@ -1,20 +1,28 @@
 // Create a web server
-// Start server with node comments.js
-// View at http://localhost:3000
+// Run with: node comments.js
 
-// Load the http module to create an http server.
-var http = require('http');
+var express = require('express');
+var bodyParser = require('body-parser');
+var app = express();
 
-// Create a function to handle every HTTP request
-function handler(req, res){
+// Tell the web server to serve files
+app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-    // Return a simple message
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end('Hello Node.js\n');
-}
+var comments = [];
 
-// Create a server that invokes the `handler` function upon receiving a request
-http.createServer(handler).listen(3000);
+app.get('/comments.json', function(req, res) {
+  res.json(comments);
+});
 
-// Put a friendly message on the terminal
-console.log('Server running at http://
+app.post('/comments', function(req, res) {
+  var comment = req.body;
+  console.log(comment);
+  comments.push(comment);
+  res.json(comment);
+});
+
+app.listen(3000, function() {
+  console.log('Server listening on port 3000');
+});
