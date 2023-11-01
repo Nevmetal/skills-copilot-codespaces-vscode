@@ -1,15 +1,64 @@
 // Create a web server
-// The web server should respond to requests to /comments with a web page that lists the comments people have left.
-// It should have a form on this page that lets people leave new comments: it has fields for author, email, and comment itself.
-// The web server should respond to POST requests to /comments by storing the comment object in a global variable.
-// It should then redirect back to /comments.
-// Test it all by opening several tabs to http://localhost:8000/comments and leaving comments in each of them.
-// Notice how they all show up when you go back to http://localhost:8000/comments.
-// To test the POST functionality, you can use curl (from the command line) or Poster (a Firefox plug-in).
-// This is a rather silly way to store comments, since comments will be lost when the server shuts down, but it'll do for now.
-// When you're done, run npm install express@3 jade body-parser in the directory where you put your code to install the dependencies.
-// You can then run the program with the command node server.js.
-// Note that this is the old version of Express, which is slightly different from the current version.
-// If you want to use the current version, you'll have to look up the documentation.
-// If you get stuck, the code for this exercise is in the express directory in the source code for this book.
-// It is also available online ata asfasf
+const express = require("express");
+const app = express();
+const path = require("path");
+const bodyParser = require("body-parser");
+const comments = require("./data/comments");
+const products = require("./data/products");
+const port = process.env.PORT || 4001;
+
+// Use static server to serve the Express Yourself Website
+app.use(express.static(path.join(__dirname, "public")));
+
+// Parse request body if content-type is JSON
+app.use(bodyParser.json());
+
+app.get("/comments", (req, res) => {
+  res.send(comments);
+});
+
+app.get("/comments/:commentId", (req, res) => {
+  const commentId = Number(req.params.commentId);
+  const getComment = comments.find(comment => comment.id === commentId);
+  if (getComment) {
+    res.send(getComment);
+  } else {
+    res.status(404).send("Comment not found");
+  }
+});
+
+app.post("/comments", (req, res) => {
+  const newComment = {
+    id: req.params.id,
+    body: req.params.body,
+    postId: req.params.postId
+  };
+  comments.push(newComment);
+  res.send(newComment);
+});
+
+app.put("/comments/:commentId", (req, res) => {
+  const commentId = Number(req.params.commentId);
+  const updateComment = comments.find(comment => comment.id === commentId);
+  if (updateComment) {
+    updateComment.body = req.params.body;
+    res.send(updateComment);
+  } else {
+    res.status(404).send("Comment not found");
+  }
+});
+
+app.delete("/comments/:commentId", (req, res) => {
+  const commentId = Number(req.params.commentId);
+  const deleteComment = comments.find(comment => comment.id === commentId);
+  if (deleteComment) {
+    deleteComment.body = req.params.body;
+    res.send(deleteComment);
+  } else {
+    res.status(404).send("Comment not found");
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Web server is listening on port ${port}!`);
+});
